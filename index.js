@@ -1,28 +1,30 @@
-const getLogger = async (event, config) => {
-  const queue = []
+const consoleReporter = async queue => {
+  queue.forEach(logEvent => console.log(`${logEvent['@l']}: ${logEvent[`@m`]}`))
+}
 
-  const reporter = async queue => {
-    queue.forEach(logEvent => console.log(`${logEvent['@l']}: ${logEvent[`@m`]}`))
+class Logger {
+  constructor() {
+    this.reporter = consoleReporter
+    this.queue = []
   }
 
-  const enqueue = (level, msg) => queue.push({
-    '@t': new Date().toISOString(),
-    '@m': msg,
-    '@l': level,
-  })
+  enqueue(level, msg) {
+    this.queue.push({
+      '@t': new Date().toISOString(),
+      '@m': msg,
+      '@l': level,
+    })
+  }
 
-  return {
-    queue,
-    info: msg => enqueue('INFO', msg),
-    report: () => event.waitUntil(reporter(queue))
+  info(msg) {
+    this.enqueue('INFO', msg)
+  }
+
+  report() {
+    return this.reporter(this.queue)
   }
 }
 
-export default async function (event, router) {
-  const log = await getLogger(event)
-  const { request } = event
-  log.info('logger created')
-  const res = await router.handle(request, event)
-  log.report()
-  return res
+export {
+  Logger
 }
