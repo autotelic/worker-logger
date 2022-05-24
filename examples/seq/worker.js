@@ -1,17 +1,6 @@
-import { Logger } from '../../index.js'
+import { Logger, createSeqReporter } from '../../index.js'
 
-// this is a reporter for Seq https://docs.datalust.co/docs/posting-raw-events
-const reporter = async logQueue => {
-  const batch = logQueue.map(logEvent => JSON.stringify(logEvent)).join('\n')
-  return fetch('http://localhost:5341/api/events/raw', {
-    body: batch,
-    method: 'POST',
-    headers: {
-      'content-type': 'application/vnd.serilog.clef'
-    }
-  })
-}
-
+const reporter = createSeqReporter('http://localhost:5341', fetch)
 const log = new Logger({ reporter })
 
 addEventListener('fetch', event => { // eslint-disable-line no-undef
