@@ -7,21 +7,21 @@ const reporter = async logQueue => {
     body: batch,
     method: 'POST',
     headers: {
-      'content-type': 'application/vnd.serilog.clef',
+      'content-type': 'application/vnd.serilog.clef'
     }
   })
 }
 
 const log = new Logger({ reporter })
 
-addEventListener('fetch', event => {
-  event.respondWith(handleEvent(event));
+addEventListener('fetch', event => { // eslint-disable-line no-undef
+  event.respondWith(handleEvent(event))
 })
 
-async function handleEvent(event) {
+async function handleEvent (event) {
   log.info('hello logger')
-  const response = new Response('Hello worker!', {
-    headers: { 'content-type': 'text/plain' },
+  const response = new Response('Hello worker!', { // eslint-disable-line no-undef
+    headers: { 'content-type': 'text/plain' }
   })
   log.info('response constructed')
   event.waitUntil(log.report())

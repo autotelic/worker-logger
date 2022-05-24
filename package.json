@@ -5,7 +5,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "lint": "standard",
+    "fix": "standard --fix",
     "test": "ava",
+    "validate": "npm run lint && npm run test",
     "build-seq-example": "esbuild --bundle --sourcemap --outdir=./examples/seq/dist ./examples/seq/worker.js"
   },
   "repository": {
@@ -22,6 +25,7 @@
   "devDependencies": {
     "ava": "^4.2.0",
     "esbuild": "^0.14.39",
-    "sinon": "^14.0.0"
+    "sinon": "^14.0.0",
+    "standard": "^17.0.0"
   }
 }
