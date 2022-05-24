@@ -3,8 +3,9 @@ const consoleReporter = async queue => {
 }
 
 class Logger {
-  constructor() {
-    this.reporter = consoleReporter
+  constructor({ reporter = consoleReporter
+ }) {
+    this.reporter = reporter
     this.queue = []
   }
 

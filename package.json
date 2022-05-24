@@ -5,7 +5,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ava",
+    "build-seq-example": "esbuild --bundle --sourcemap --outdir=./examples/seq/dist ./examples/seq/worker.js"
   },
   "repository": {
     "type": "git",
@@ -17,5 +18,10 @@
   "bugs": {
     "url": "https://github.com/autotelic/worker-logger/issues"
   },
-  "homepage": "https://github.com/autotelic/worker-logger#readme"
+  "homepage": "https://github.com/autotelic/worker-logger#readme",
+  "devDependencies": {
+    "ava": "^4.2.0",
+    "esbuild": "^0.14.39",
+    "sinon": "^14.0.0"
+  }
 }
