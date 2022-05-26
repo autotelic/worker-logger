@@ -1,6 +1,13 @@
-const consoleReporter = async queue => {
-  queue.forEach(logEvent => console.log(`${logEvent['@l']}: ${logEvent['@m']}`))
+const LEVEL_NAMES = {
+  10: 'trace',
+  20: 'debug',
+  30: 'info',
+  40: 'warn',
+  50: 'error',
+  60: 'fatal'
 }
+
+const consoleReporter = logEvent => console.log(`${logEvent['@l']}: ${logEvent['@m']}`)
 
 const createSeqReporter = (seqHost, fetchClient) => {
   return async logQueue => {
@@ -15,26 +22,65 @@ const createSeqReporter = (seqHost, fetchClient) => {
   }
 }
 
+const defaultTransport = {
+  reporter: consoleReporter,
+  level: 'INFO',
+  batch: false
+}
+
 class Logger {
-  constructor ({ reporter = consoleReporter }) {
-    this.reporter = reporter
+  constructor({ transports = [defaultTransport] }) {
+    const { batchTransports, queueTransports } = transports.reduce((groups, transport) => {
+      const { batch = true, reporter, level = 'info' } = transport
+      batch === false
+        ? groups.queueTransports.push({ reporter, level })
+        : groups.batchTransports.push({ reporter, level })
+      return groups
+    }, {
+      batchTransports: [],
+      queueTransports: [],
+    })
+
+    this.batchTransports = batchTransports
+    this.queueTransports = queueTransports
     this.queue = []
   }
 
-  enqueue (level, msg) {
-    this.queue.push({
+  enqueue(levelNum, msg) {
+    const asClef = {
       '@t': new Date().toISOString(),
       '@m': msg,
-      '@l': level
+      '@l': LEVEL_NAMES[levelNum]
+    }
+    this.queueTransports.forEach(({ reporter, level }) => {
+      if (levelNum >= this.getLevelNumberByName(level)) {
+        reporter(asClef)
+      }
     })
+    this.queue.push(asClef)
   }
 
-  info (msg) {
-    this.enqueue('INFO', msg)
+  getLevelNumberByName(levelName) {
+    return Number(Object.keys(LEVEL_NAMES).find(levelNum => LEVEL_NAMES[levelNum] === levelName))
   }
 
-  report () {
-    return this.reporter(this.queue)
+  info(msg) {
+    this.enqueue(30, msg)
+  }
+
+  debug(msg) {
+    this.enqueue(20, msg)
+  }
+
+  report() {
+    this.batchTransports.forEach(
+      ({ reporter, level }) => {
+        const filteredQueue = this.queue.filter(logEvent => {
+          return this.getLevelNumberByName(logEvent['@l']) >= this.getLevelNumberByName(level)
+        })
+        reporter(filteredQueue)
+      }
+    )
   }
 }
 
