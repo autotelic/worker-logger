@@ -1,7 +1,4 @@
 import { Logger, createSeqReporter } from '../../index.js'
-import pino from 'pino'
-
-const logger = pino()
 
 const reporter = createSeqReporter('http://localhost:5341', fetch)
 const log = new Logger({ reporter })

@@ -29,7 +29,7 @@ const defaultTransport = {
 }
 
 class Logger {
-  constructor({ transports = [defaultTransport] }) {
+  constructor ({ transports = [defaultTransport] }) {
     const { batchTransports, queueTransports } = transports.reduce((groups, transport) => {
       const { batch = true, reporter, level = 'info' } = transport
       batch === false
@@ -38,7 +38,7 @@ class Logger {
       return groups
     }, {
       batchTransports: [],
-      queueTransports: [],
+      queueTransports: []
     })
 
     this.batchTransports = batchTransports
@@ -46,7 +46,7 @@ class Logger {
     this.queue = []
   }
 
-  enqueue(levelNum, msg) {
+  enqueue (levelNum, msg) {
     const asClef = {
       '@t': new Date().toISOString(),
       '@m': msg,
@@ -60,19 +60,35 @@ class Logger {
     this.queue.push(asClef)
   }
 
-  getLevelNumberByName(levelName) {
+  getLevelNumberByName (levelName) {
     return Number(Object.keys(LEVEL_NAMES).find(levelNum => LEVEL_NAMES[levelNum] === levelName))
   }
 
-  info(msg) {
+  fatal (msg) {
+    this.enqueue(60, msg)
+  }
+
+  error (msg) {
+    this.enqueue(50, msg)
+  }
+
+  warn (msg) {
+    this.enqueue(40, msg)
+  }
+
+  info (msg) {
     this.enqueue(30, msg)
   }
 
-  debug(msg) {
+  debug (msg) {
     this.enqueue(20, msg)
   }
 
-  report() {
+  trace (msg) {
+    this.enqueue(10, msg)
+  }
+
+  report () {
     this.batchTransports.forEach(
       ({ reporter, level }) => {
         const filteredQueue = this.queue.filter(logEvent => {

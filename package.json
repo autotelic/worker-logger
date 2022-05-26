@@ -25,7 +25,6 @@
   "devDependencies": {
     "ava": "^4.2.0",
     "esbuild": "^0.14.39",
-    "pino": "^7.11.0",
     "sinon": "^14.0.0",
     "standard": "^17.0.0"
   }
