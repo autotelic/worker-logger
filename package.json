@@ -24,7 +24,7 @@
   "homepage": "https://github.com/autotelic/worker-logger#readme",
   "devDependencies": {
     "ava": "^4.2.0",
-    "esbuild": "^0.14.39",
+    "esbuild": "^0.15.6",
     "sinon": "^14.0.0",
     "standard": "^17.0.0"
   }
