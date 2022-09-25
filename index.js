@@ -1,106 +1,13 @@
-const LEVEL_NAMES = {
-  10: 'trace',
-  20: 'debug',
-  30: 'info',
-  40: 'warn',
-  50: 'error',
-  60: 'fatal'
-}
-
-const consoleReporter = logEvent => console.log(`${logEvent['@l']}: ${logEvent['@m']}`)
-
-const createSeqReporter = (seqHost, fetchClient) => {
-  return async logQueue => {
-    const batch = logQueue.map(logEvent => JSON.stringify(logEvent)).join('\n')
-    return fetchClient(`${seqHost}/api/events/raw`, {
-      body: batch,
-      method: 'POST',
-      headers: {
-        'content-type': 'application/vnd.serilog.clef'
-      }
-    })
-  }
-}
-
-const defaultTransport = {
-  reporter: consoleReporter,
-  level: 'INFO',
-  batch: false
-}
-
-class Logger {
-  constructor ({ transports = [defaultTransport] }) {
-    const { batchTransports, queueTransports } = transports.reduce((groups, transport) => {
-      const { batch = true, reporter, level = 'info' } = transport
-      batch === false
-        ? groups.queueTransports.push({ reporter, level })
-        : groups.batchTransports.push({ reporter, level })
-      return groups
-    }, {
-      batchTransports: [],
-      queueTransports: []
-    })
-
-    this.batchTransports = batchTransports
-    this.queueTransports = queueTransports
-    this.queue = []
-  }
-
-  enqueue (levelNum, msg) {
-    const asClef = {
-      '@t': new Date().toISOString(),
-      '@m': msg,
-      '@l': LEVEL_NAMES[levelNum]
-    }
-    this.queueTransports.forEach(({ reporter, level }) => {
-      if (levelNum >= this.getLevelNumberByName(level)) {
-        reporter(asClef)
-      }
-    })
-    this.queue.push(asClef)
-  }
-
-  getLevelNumberByName (levelName) {
-    return Number(Object.keys(LEVEL_NAMES).find(levelNum => LEVEL_NAMES[levelNum] === levelName))
-  }
-
-  fatal (msg) {
-    this.enqueue(60, msg)
-  }
-
-  error (msg) {
-    this.enqueue(50, msg)
-  }
-
-  warn (msg) {
-    this.enqueue(40, msg)
-  }
-
-  info (msg) {
-    this.enqueue(30, msg)
-  }
-
-  debug (msg) {
-    this.enqueue(20, msg)
-  }
-
-  trace (msg) {
-    this.enqueue(10, msg)
-  }
-
-  report () {
-    this.batchTransports.forEach(
-      ({ reporter, level }) => {
-        const filteredQueue = this.queue.filter(logEvent => {
-          return this.getLevelNumberByName(logEvent['@l']) >= this.getLevelNumberByName(level)
-        })
-        reporter(filteredQueue)
-      }
-    )
-  }
-}
+import { Logger } from './lib/logger/index.js'
+import { consoleReporter } from './lib/reporters/consoleReporter.js'
+import { createSeqReporter } from './lib/reporters/seqReporter.js'
+import { createLoggableEventHandler } from './lib/loggableEventHandler/index.js'
+import { createPapertrailHttpReporter } from './lib/reporters/paperTrailHttpReporter.js'
 
 export {
   Logger,
-  createSeqReporter
+  createSeqReporter,
+  consoleReporter,
+  createLoggableEventHandler,
+  createPapertrailHttpReporter
 }

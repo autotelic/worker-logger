@@ -19,21 +19,17 @@ npm install --save @autotelic/worker-logger
 ## Usage
 
 ```js
-import { Logger } from '@autotelic/worker-logger'
+import { Logger, createSeqReporter } from '@autotelic/worker-logger'
 
-// this is a reporter for Seq https://docs.datalust.co/docs/posting-raw-events
-const reporter = async logQueue => {
-  const batch = logQueue.map(logEvent => JSON.stringify(logEvent)).join('\n')
-  return fetch('http://localhost:5341/api/events/raw', {
-    body: batch,
-    method: 'POST',
-    headers: {
-      'content-type': 'application/vnd.serilog.clef',
-    }
-  })
-}
+// this creates a reporter for posting to Seq https://docs.datalust.co/docs/posting-raw-events
+// pass in the global fetch of the worker
+const seqReporter = createSeqReporter('http://localhost:5341', fetch)
 
-const log = new Logger({ reporter })
+
+const log = new Logger(transports: [
+  { reporter: seqReporter },
+  { repoert: consoleReporter, batch: false },
+])
 
 addEventListener('fetch', event => {
   event.respondWith(handleEvent(event));
