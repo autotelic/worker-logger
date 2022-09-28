@@ -31,5 +31,9 @@
     "miniflare": "^2.9.0",
     "sinon": "^14.0.0",
     "standard": "^17.0.0"
+  },
+  "dependencies": {
+    "fast-safe-stringify": "^2.1.1",
+    "moment-timezone": "^0.5.37"
   }
 }
