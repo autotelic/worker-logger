@@ -1,6 +1,6 @@
 {
   "name": "@autotelic/worker-logger",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "A logger for cloudflare workers",
   "type": "module",
   "main": "index.js",
